@@ -36,3 +36,4 @@ class DatabaseConnector():
         engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}")
         engine.connect()
         dataframe.to_sql(table_name, engine, if_exists='replace', index=False)
+
