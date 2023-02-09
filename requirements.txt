@@ -1,0 +1,7 @@
+numpy==1.23.5
+pandas==1.5.2
+PyYAML==6.0
+selenium==3.141.0
+SQLAlchemy==1.4.46
+tabula==1.0.5
+tabula_py==2.6.0

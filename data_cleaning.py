@@ -1,5 +1,7 @@
+import calendar
 import numpy as np
 import pandas as pd
+from datetime import datetime
 
 class DataCleaning():
     def clean_user_data(df):
@@ -21,3 +23,16 @@ class DataCleaning():
         df['country_code'] = df['country_code'].astype('category')
         return df
 
+    def clean_card_data(card_df):
+        # convert date columns
+        card_df['date_payment_confirmed'] = pd.to_datetime(card_df['date_payment_confirmed'], errors='coerce')
+        # drop rows with all incorrect values and reset index
+        card_df = card_df.loc[card_df['date_payment_confirmed'].notna()]
+        card_df = card_df.reset_index()
+        card_df.set_index('index', inplace=True)
+        # convert expiry date to datetime and also set it to last day of month
+        card_df['expiry_date'] = pd.to_datetime(card_df['expiry_date'], format="%m/%y")
+        card_df['expiry_date'] = card_df['expiry_date'].apply(lambda x : datetime(x.year, x.month, (calendar.monthrange(x.year, x.month)[1])))
+        # optimize column dtypes
+        card_df['card_provider'] = card_df['card_provider'].astype('category')
+        return card_df
