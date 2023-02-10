@@ -25,5 +25,6 @@ class DataExtractor():
     def retrieve_stores_data(number_of_stores):
         stores_dict = [requests.get(f'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{x}', headers=api_creds).json() for x in range(0,number_of_stores)]
         stores_df = pd.DataFrame(stores_dict)
+        stores_df.set_index('index', inplace=True)
         return stores_df
 

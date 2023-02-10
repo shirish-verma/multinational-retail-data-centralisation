@@ -4,24 +4,23 @@ import pandas as pd
 from datetime import datetime
 
 class DataCleaning():
-    def clean_user_data(df):
+    def clean_user_data(user_df):
         # remove NULL rows
-        df.replace('NULL', np.nan, inplace=True)
-        df.dropna(how='all', inplace=True)
+        user_df.replace('NULL', np.nan, inplace=True)
+        user_df.dropna(how='all', inplace=True)
         # convert date columns
-        df['date_of_birth'] = pd.to_datetime(df['date_of_birth'], errors='coerce')
-        df['join_date'] = pd.to_datetime(df['join_date'], errors='coerce')
+        user_df['date_of_birth'] = pd.to_datetime(user_df['date_of_birth'], errors='coerce')
+        user_df['join_date'] = pd.to_datetime(user_df['join_date'], errors='coerce')
         # drop rows with all incorrect values and reset index
-        df = df.loc[df['date_of_birth'].notna()]
-        df = df.reset_index()
-        df.set_index('index', inplace=True)
+        user_df = user_df.loc[user_df['date_of_birth'].notna()]
+        user_df = user_df.reset_index(drop=True)
         # replace incorrectly typed email and country code values 
-        df['email_address'] = df['email_address'].replace({'@@' : '@'}, regex=True)
-        df['country_code'] = df['country_code'].replace({'GGB' : 'GB'}, regex=True)
+        user_df['email_address'] = user_df['email_address'].replace({'@@' : '@'}, regex=True)
+        user_df['country_code'] = user_df['country_code'].replace({'GGB' : 'GB'}, regex=True)
         # optimize column dtypes
-        df['country'] = df['country'].astype('category')
-        df['country_code'] = df['country_code'].astype('category')
-        return df
+        user_df['country'] = user_df['country'].astype('category')
+        user_df['country_code'] = user_df['country_code'].astype('category')
+        return user_df
 
     def clean_card_data(card_df):
         # convert date columns
@@ -40,7 +39,28 @@ class DataCleaning():
         card_df['card_provider'] = card_df['card_provider'].astype('category')
         return card_df
 
-    def called_clean_store_data(stores_df):
-        
-        
-        pass
+    def clean_store_data(stores_df):
+        # remove N/A and NULL values
+        stores_df.replace(['NULL', 'N/A'], None, inplace=True)
+        # convert date columns
+        stores_df['opening_date'] = pd.to_datetime(stores_df['opening_date'], errors='coerce')
+        # drop rows with all incorrect values and reset index
+        stores_df = stores_df.loc[stores_df['opening_date'].notna()]
+        stores_df = stores_df.reset_index(drop=True)
+        # drop duplicate column
+        stores_df.drop(columns='lat', inplace=True)
+        # clean errorneous data
+        stores_df['staff_numbers'] = stores_df['staff_numbers'].str.replace('[A-Z_a-z\W]', '', regex=True)
+        stores_df['continent'] = stores_df['continent'].str.replace('eeEurope' , 'Europe').replace('eeAmerica' , 'America')
+        # convert numeric columns
+        stores_df['staff_numbers'] = pd.to_numeric(stores_df['staff_numbers'])
+        stores_df['longitude'] = pd.to_numeric(stores_df['longitude'])
+        stores_df['latitude'] = pd.to_numeric(stores_df['latitude'])
+        # optimize column dtypes
+        stores_df['locality'] = stores_df['locality'].astype('category')
+        stores_df['store_type'] = stores_df['store_type'].astype('category')
+        stores_df['country_code'] = stores_df['country_code'].astype('category')
+        stores_df['continent'] = stores_df['continent'].astype('category')
+        stores_df['store_code'] = stores_df['store_code'].astype('string')
+        return stores_df
+
