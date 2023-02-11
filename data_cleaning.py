@@ -1,5 +1,6 @@
 import calendar
 import numpy as np
+import re as regex
 import pandas as pd
 from datetime import datetime
 
@@ -63,4 +64,36 @@ class DataCleaning():
         stores_df['continent'] = stores_df['continent'].astype('category')
         stores_df['store_code'] = stores_df['store_code'].astype('string')
         return stores_df
+
+    def convert_product_weights(products_df):
+        conv_to_g_factors = {'kg' : 1000, 'g' : 1, 'ml' : 1, 'oz' : 28.3495}
+        # get the weight value, unit, multiplier, if any (cont'd)
+        products_df['weight_only'] = products_df['weight'].apply(lambda w : regex.findall('\S\d*\.?\d*[A-Za-z]+', w)[0])
+        products_df['weight_multiplier'] = products_df['weight'].apply(lambda x : int(regex.findall('\d+\sx', x)[0].split(' ')[0]) if bool(regex.findall('\d+\sx', x)) == True else 1)
+        products_df['weight_value'] = products_df['weight_only'].apply(lambda x : regex.search('\d*\.?\d*', x).group())
+        products_df['weight_unit'] = products_df['weight_only'].apply(lambda x : regex.search('[A-Za-z]+', x).group())
+        # add conversion factor column to convert kg, g, ml, oz to g vals
+        products_df['conv_to_g_factor'] = products_df['weight_unit'].apply(lambda unit : conv_to_g_factors.get(unit))
+        #  multiply the columns, i.e. weight_value x multiplier x conv_factor = weight in grams
+        products_df['weight_grams'] = products_df['weight_value'].astype(float) * products_df['weight_multiplier'].astype(float) * products_df['conv_to_g_factor']
+        # drop columns no longer needed
+        products_df.drop(columns=['weight_only', 'weight_multiplier', 'weight_value', 'weight_unit', 'conv_to_g_factor'], inplace=True)
+        return products_df
+
+    def clean_products_data(products_df):
+        # drop rows with all null values
+        products_df.dropna(how='all', inplace=True)        
+        # convert date columns
+        products_df['date_added'] = pd.to_datetime(products_df['date_added'], errors='coerce')
+        # drop rows with all incorrect values and reset index
+        products_df = products_df.loc[products_df['date_added'].notna()]
+        products_df = products_df.reset_index(drop=True)
+        # convert numeric columns
+        products_df['product_price'] = products_df['product_price'].str.replace('£', '')
+        products_df['product_price'] = pd.to_numeric(products_df['product_price'])
+        products_df['EAN'] = pd.to_numeric(products_df['EAN'])
+        # optimize column dtypes
+        products_df['category'] = products_df['category'].astype('category')
+        products_df['removed'] = products_df['removed'].astype('category')
+        return products_df
 
