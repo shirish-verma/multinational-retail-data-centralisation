@@ -97,3 +97,26 @@ class DataCleaning():
         products_df['removed'] = products_df['removed'].astype('category')
         return products_df
 
+    def clean_orders_data(orders_df):
+        orders_df.drop(columns=['first_name', 'last_name', '1', 'level_0'], inplace=True)
+        orders_df['store_code'] = orders_df['store_code'].astype('category')
+        return orders_df
+
+    def clean_events_data(events_df):
+        # remove NULL rows        
+        events_df.replace('NULL', np.nan, inplace=True)
+        events_df.dropna(how='all', inplace=True)
+        # create new column to reflect full date and time value in datetime format
+        events_df['dt_string'] = events_df['year'] + ' ' + events_df['month'] + ' ' + events_df['day'] + ' ' + events_df['timestamp']
+        events_df['datetime'] = pd.to_datetime(events_df['dt_string'], errors='coerce')
+        events_df.drop(columns='dt_string', inplace=True)
+        # drop rows with incorrect values and reset index
+        events_df = events_df.loc[events_df['datetime'].notna()]
+        events_df = events_df.reset_index(drop=True)
+        # convert / optimize columns
+        events_df['month'] = events_df['month'].astype('int64')
+        events_df['year'] = events_df['year'].astype('int64')
+        events_df['day'] = events_df['day'].astype('int64')
+        events_df['time_period'] = events_df['time_period'].astype('category')
+        return events_df
+        

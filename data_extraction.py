@@ -8,10 +8,10 @@ from awscli.customizations.s3.utils import split_s3_bucket_key
 api_creds = {'x-api-key' : 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
 
 class DataExtractor():    
-    def read_rds_table():
+    def read_rds_table(table_name):
         rds_instance = DatabaseConnector()
         rds_tables = rds_instance.list_db_tables()    
-        users_df = pd.read_sql_table(rds_tables[rds_tables.index('legacy_users')], rds_instance.init_db_engine()).set_index('index')
+        users_df = pd.read_sql_table(table_name, rds_instance.init_db_engine()).set_index('index')
         return users_df
     
     def retrieve_pdf_data(pdf_link):
@@ -37,4 +37,9 @@ class DataExtractor():
         s3_client.download_file(Bucket=bucket_name, Key=key_name, Filename='products.csv')
         products_df = pd.read_csv('products.csv', index_col=0)
         return products_df
+
+    def retrieve_events_data(url):
+        response = requests.get(url)
+        events_df = pd.DataFrame(response.json())
+        return events_df
 
