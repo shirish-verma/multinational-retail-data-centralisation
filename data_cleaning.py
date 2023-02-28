@@ -31,9 +31,9 @@ class DataCleaning():
         card_df = card_df.reset_index()
         card_df.set_index('index', inplace=True)
         # convert expiry date to datetime and also set it to last day of month
-        card_df['expiry_date'] = pd.to_datetime(card_df['expiry_date'], format="%m/%y")
-        card_df['expiry_date'] = card_df['expiry_date'].apply(lambda x : datetime(x.year, x.month, (calendar.monthrange(x.year, x.month)[1])))
-        # convert card number to numberic by first correcting values with typos
+        card_df['expiry_date_new'] = pd.to_datetime(card_df['expiry_date'], format="%m/%y")
+        card_df['expiry_date_new'] = card_df['expiry_date_new'].apply(lambda x : datetime(x.year, x.month, (calendar.monthrange(x.year, x.month)[1])))
+        # convert card number to numeric by first correcting values with typos
         card_df['card_number'] = card_df['card_number'].replace({'\?' : ''}, regex=True)
         card_df['card_number'] = pd.to_numeric(card_df['card_number'])
         # optimize column dtypes
@@ -89,8 +89,8 @@ class DataCleaning():
         products_df = products_df.loc[products_df['date_added'].notna()]
         products_df = products_df.reset_index(drop=True)
         # convert numeric columns
-        products_df['product_price'] = products_df['product_price'].str.replace('£', '')
-        products_df['product_price'] = pd.to_numeric(products_df['product_price'])
+        products_df['product_price_2'] = products_df['product_price'].str.replace('£', '')
+        products_df['product_price_2'] = pd.to_numeric(products_df['product_price_2'])
         products_df['EAN'] = pd.to_numeric(products_df['EAN'])
         # optimize column dtypes
         products_df['category'] = products_df['category'].astype('category')
