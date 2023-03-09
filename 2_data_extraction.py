@@ -1,19 +1,17 @@
-import boto3
-import tabula
-import requests
-import pandas as pd
-from database_utils import DatabaseConnector
 from awscli.customizations.s3.utils import split_s3_bucket_key
+from database_utils import DatabaseConnector
+import boto3
+import pandas as pd
+import requests
+import tabula
 
 api_creds = {'x-api-key' : 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
 
-class DataExtractor():    
-    def read_rds_table(table_name):
-        rds_instance = DatabaseConnector()
-        rds_tables = rds_instance.list_db_tables()    
-        users_df = pd.read_sql_table(table_name, rds_instance.init_db_engine()).set_index('index')
-        return users_df
-    
+class DataExtractor():
+    def read_rds_table(engine, table_name):
+        users_df = pd.read_sql_table(table_name, engine).set_index('index')
+        return users_df 
+      
     def retrieve_pdf_data(pdf_link):
         list_of_dfs = tabula.read_pdf(pdf_link, pages='all')
         dataframe = pd.concat(list_of_dfs)

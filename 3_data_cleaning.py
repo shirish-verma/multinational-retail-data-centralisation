@@ -1,8 +1,8 @@
+from datetime import datetime
 import calendar
 import numpy as np
-import re as regex
 import pandas as pd
-from datetime import datetime
+import re as regex
 
 class DataCleaning():
     def clean_user_data(user_df):
