@@ -25,3 +25,4 @@ class DatabaseConnector:
     def upload_to_db(self, dataframe, table_name):
         dataframe.to_sql(table_name, self.engine, if_exists='replace', index=False)
 
+### SHIRISH IS GREAT ###
